@@ -10,14 +10,12 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 public class TileQuarry extends TileEntityLockableLoot implements ITickable, IInventory {
@@ -300,8 +298,7 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 	}
 
 	@Override
-	public void setField(int id, int value) {
-	}
+	public void setField(int id, int value) {}
 
 	/**
 	 * Sets the given item stack to the specified slot in the inventory (can be
@@ -311,11 +308,9 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 	public void setInventorySlotContents(int index, @Nullable ItemStack stack) {
 		this.fillWithLoot((EntityPlayer) null);
 		this.chestContents.set(index, stack);
-
 		if (stack != null && stack.getCount() > this.getInventoryStackLimit()) {
 			stack.setCount(this.getInventoryStackLimit());
 		}
-
 		this.markDirty();
 	}
 
@@ -330,56 +325,22 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 
 	@Override
 	public void update() {
-		int i = this.pos.getX();
-		int j = this.pos.getY();
-		int k = this.pos.getZ();
 		++this.ticksSinceSync;
-
-		if (!this.world.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + i + j + k) % 200 == 0) {
-			this.numPlayersUsing = 0;
-			float f = 5.0F;
-
-			for (EntityPlayer entityplayer : this.world.getEntitiesWithinAABB(EntityPlayer.class,
-					new AxisAlignedBB(i - 5.0F, j - 5.0F, k - 5.0F, i + 1 + 5.0F, j + 1 + 5.0F, k + 1 + 5.0F))) {
-				if (entityplayer.openContainer instanceof ContainerChest) {
-					IInventory iinventory = ((ContainerChest) entityplayer.openContainer).getLowerChestInventory();
-
-					if (iinventory == this || iinventory instanceof InventoryLargeChest
-							&& ((InventoryLargeChest) iinventory).isPartOfLargeChest(this)) {
-						++this.numPlayersUsing;
-					}
-				}
-			}
-		}
-
 		this.prevLidAngle = this.lidAngle;
-		float f1 = 0.1F;
-
 		if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
-			float f2 = this.lidAngle;
-
 			if (this.numPlayersUsing > 0) {
 				this.lidAngle += 0.1F;
 			} else {
 				this.lidAngle -= 0.1F;
 			}
-
 			if (this.lidAngle > 1.0F) {
 				this.lidAngle = 1.0F;
 			}
-
-			float f3 = 0.5F;
-
 			if (this.lidAngle < 0.0F) {
 				this.lidAngle = 0.0F;
 			}
 		}
 		quarryPart();
-	}
-
-	@Override
-	public void updateContainingBlockInfo() {
-		super.updateContainingBlockInfo();
 	}
 
 	@Override
