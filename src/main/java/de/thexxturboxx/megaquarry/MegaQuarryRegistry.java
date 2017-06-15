@@ -74,7 +74,7 @@ public class MegaQuarryRegistry {
 					new ItemStack(Blocks.EMERALD_BLOCK));
 			registerShapelessRecipe(new ItemStack(MegaQuarryAdditions.filtered_quarry),
 					new ItemStack(MegaQuarryAdditions.better_quarry), new ItemStack(Blocks.DIAMOND_BLOCK),
-					new ItemStack(Blocks.SKULL, 1, 1));
+					new ItemStack(Items.SKULL, 1, 1));
 		} else {
 			registerShapedRecipe(new ItemStack(MegaQuarryAdditions.quarry), 3, 3, new ItemStack(Items.IRON_INGOT),
 					new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Items.IRON_INGOT),

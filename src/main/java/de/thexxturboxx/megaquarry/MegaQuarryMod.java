@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class MegaQuarryMod {
 
 	public static final String MODID = "megaquarry";
-	public static final String VERSION = "1.2.3";
+	public static final String VERSION = "1.2.4";
 	public static final String NAME = "Mega Quarry";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/ThexXTURBOXx/UpdateJSONs/master/megaquarry.json";
 
