@@ -1,0 +1,4 @@
+tile.blockQuarry.name=Mine
+tile.blockBetterQuarry.name=Bessere Mine
+tile.blockFilteredQuarry.name=Mine mit Filter
+itemGroup.megaquarry=Mega Quarry

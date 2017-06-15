@@ -1,1 +1,1 @@
-# MegaQuarry
+# Mega Quarry

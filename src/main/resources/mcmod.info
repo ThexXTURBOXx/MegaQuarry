@@ -1,0 +1,16 @@
+[
+{
+  "modid": "megaquarry",
+  "name": "Mega Quarry",
+  "description": "Adds a quarry... What did you expect?",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["ThexXTURBOXx"],
+  "credits": "Everyone enjoying this mod!",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
