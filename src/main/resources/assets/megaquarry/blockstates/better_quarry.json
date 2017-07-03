@@ -2,7 +2,7 @@
     "forge_marker": 1,
     "defaults": {
         "textures": {
-            "all": "megaquarry:blocks/blockfilteredquarry"
+            "all": "megaquarry:blocks/better_quarry"
         }
     },
     "variants": {

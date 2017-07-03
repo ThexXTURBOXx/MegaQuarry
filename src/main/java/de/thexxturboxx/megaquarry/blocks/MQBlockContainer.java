@@ -15,7 +15,6 @@ public abstract class MQBlockContainer extends BlockContainer {
 		super(mat);
 		this.name = name;
 		setUnlocalizedName(name);
-		setRegistryName(name);
 		setCreativeTab(MegaQuarryMod.tabMegaQuarry);
 	}
 

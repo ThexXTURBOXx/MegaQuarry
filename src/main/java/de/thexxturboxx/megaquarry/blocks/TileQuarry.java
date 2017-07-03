@@ -298,7 +298,8 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 	}
 
 	@Override
-	public void setField(int id, int value) {}
+	public void setField(int id, int value) {
+	}
 
 	/**
 	 * Sets the given item stack to the specified slot in the inventory (can be

@@ -4,23 +4,53 @@ import java.io.File;
 
 import de.thexxturboxx.megaquarry.blocks.BetterQuarry;
 import de.thexxturboxx.megaquarry.blocks.FilteredQuarry;
-import de.thexxturboxx.megaquarry.blocks.MQBlockContainer;
 import de.thexxturboxx.megaquarry.blocks.Quarry;
+import de.thexxturboxx.megaquarry.blocks.TileBetterQuarry;
+import de.thexxturboxx.megaquarry.blocks.TileFilteredQuarry;
+import de.thexxturboxx.megaquarry.blocks.TileQuarry;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
 public class MegaQuarryRegistry {
+
+	public static final String ID = MegaQuarryMod.MODID + ":";
+
+	public static final String QUARRY = ID + "quarry";
+	public static final String BETTER_QUARRY = ID + "better_quarry";
+	public static final String FILTERED_QUARRY = ID + "filtered_quarry";
+
+	@ObjectHolder(QUARRY)
+	public static Quarry quarry = (Quarry) new Quarry().setRegistryName(ID + "quarry");
+	@ObjectHolder(BETTER_QUARRY)
+	public static BetterQuarry better_quarry = (BetterQuarry) new BetterQuarry().setRegistryName(ID + "better_quarry");
+	@ObjectHolder(FILTERED_QUARRY)
+	public static FilteredQuarry filtered_quarry = (FilteredQuarry) new FilteredQuarry()
+			.setRegistryName(ID + "filtered_quarry");
+	@ObjectHolder(QUARRY)
+	public static ItemBlock quarry_item = (ItemBlock) new ItemBlock(quarry).setRegistryName(ID + "quarry");
+	@ObjectHolder(BETTER_QUARRY)
+	public static ItemBlock better_quarry_item = (ItemBlock) new ItemBlock(better_quarry)
+			.setRegistryName(ID + "better_quarry");
+	@ObjectHolder(FILTERED_QUARRY)
+	public static ItemBlock filtered_quarry_item = (ItemBlock) new ItemBlock(filtered_quarry)
+			.setRegistryName(ID + "filtered_quarry");
 
 	public static NonNullList<Ingredient> getIngredientList(int size, ItemStack... ingredients) {
 		NonNullList<Ingredient> ingredientList = NonNullList.withSize(size, Ingredient.EMPTY);
@@ -35,23 +65,52 @@ public class MegaQuarryRegistry {
 		return ingredientList;
 	}
 
-	private static <T extends Block> T registerBlock(T block) {
-		ItemBlock itemBlock = new ItemBlock(block);
-		itemBlock.setRegistryName(block.getRegistryName());
-		return registerBlock(block, itemBlock);
+	public static void registerItems(FMLPreInitializationEvent e) {
+
 	}
 
-	private static <T extends Block> T registerBlock(T block, ItemBlock itemBlock) {
-		GameRegistry.register(block);
-		GameRegistry.register(itemBlock);
-		if (block instanceof MQBlockContainer) {
-			((MQBlockContainer) block).registerItemModel(itemBlock);
-		}
-		return block;
+	public static void registerShapedRecipe(Register<IRecipe> e, ItemStack output, int w, int h,
+			ItemStack... ingredients) {
+		e.getRegistry()
+				.register(new ShapedRecipes("", w, h, getIngredientList(w * h, ingredients), output)
+						.setRegistryName(new ResourceLocation(MegaQuarryMod.MODID,
+								"recipe_" + output.getItem().getRegistryName().getResourcePath())));
 	}
 
-	public static void registerBlocks(FMLPreInitializationEvent e) {
-		File configdir = e.getModConfigurationDirectory();
+	public static void registerShapelessRecipe(Register<IRecipe> e, ItemStack output, ItemStack... ingredients) {
+		e.getRegistry()
+				.register(new ShapelessRecipes("", output, getIngredientList(ingredients.length, ingredients))
+						.setRegistryName(new ResourceLocation(MegaQuarryMod.MODID,
+								"recipe_" + output.getItem().getRegistryName().getResourcePath())));
+	}
+
+	@SubscribeEvent
+	public void registerBlocks(Register<Block> e) {
+		GameRegistry.registerTileEntity(TileQuarry.class, ID + "quarry_tile_entity");
+		GameRegistry.registerTileEntity(TileBetterQuarry.class, ID + "better_quarry_tile_entity");
+		GameRegistry.registerTileEntity(TileFilteredQuarry.class, ID + "filtered_quarry_tile_entity");
+		e.getRegistry().register(quarry);
+		e.getRegistry().register(better_quarry);
+		e.getRegistry().register(filtered_quarry);
+	}
+
+	@SubscribeEvent
+	public void registerItems(Register<Item> e) {
+		e.getRegistry().register(quarry_item);
+		e.getRegistry().register(better_quarry_item);
+		e.getRegistry().register(filtered_quarry_item);
+	}
+
+	@SubscribeEvent
+	public void registerModels(ModelRegistryEvent e) {
+		quarry.registerItemModel(quarry_item);
+		better_quarry.registerItemModel(better_quarry_item);
+		filtered_quarry.registerItemModel(filtered_quarry_item);
+	}
+
+	@SubscribeEvent
+	public void registerRecipes(Register<IRecipe> e) {
+		File configdir = new File("./config");
 		File configfile = new File(configdir, MegaQuarryMod.MODID + ".cfg");
 		if (!configfile.exists())
 			configdir.mkdirs();
@@ -60,50 +119,27 @@ public class MegaQuarryRegistry {
 		boolean hardmode = config.getBoolean("hardmode_recipes", "General", false,
 				"Very hard recipes, only for hard men!");
 		config.save();
-		MegaQuarryAdditions.quarry = registerBlock(new Quarry());
-		MegaQuarryAdditions.better_quarry = registerBlock(new BetterQuarry());
-		MegaQuarryAdditions.filtered_quarry = registerBlock(new FilteredQuarry());
 		if (hardmode) {
-			registerShapedRecipe(new ItemStack(MegaQuarryAdditions.quarry), 3, 3, new ItemStack(Blocks.QUARTZ_BLOCK),
+			registerShapedRecipe(e, new ItemStack(quarry), 3, 3, new ItemStack(Blocks.QUARTZ_BLOCK),
 					new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Blocks.QUARTZ_BLOCK),
 					new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Blocks.EMERALD_BLOCK),
 					new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Blocks.QUARTZ_BLOCK),
 					new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Blocks.QUARTZ_BLOCK));
-			registerShapelessRecipe(new ItemStack(MegaQuarryAdditions.better_quarry),
-					new ItemStack(MegaQuarryAdditions.quarry), new ItemStack(Blocks.DIAMOND_BLOCK),
-					new ItemStack(Blocks.EMERALD_BLOCK));
-			registerShapelessRecipe(new ItemStack(MegaQuarryAdditions.filtered_quarry),
-					new ItemStack(MegaQuarryAdditions.better_quarry), new ItemStack(Blocks.DIAMOND_BLOCK),
-					new ItemStack(Items.SKULL, 1, 1));
+			registerShapelessRecipe(e, new ItemStack(better_quarry), new ItemStack(quarry),
+					new ItemStack(Blocks.DIAMOND_BLOCK), new ItemStack(Blocks.EMERALD_BLOCK));
+			registerShapelessRecipe(e, new ItemStack(filtered_quarry), new ItemStack(better_quarry),
+					new ItemStack(Blocks.DIAMOND_BLOCK), new ItemStack(Items.SKULL, 1, 1));
 		} else {
-			registerShapedRecipe(new ItemStack(MegaQuarryAdditions.quarry), 3, 3, new ItemStack(Items.IRON_INGOT),
+			registerShapedRecipe(e, new ItemStack(quarry), 3, 3, new ItemStack(Items.IRON_INGOT),
 					new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Items.IRON_INGOT),
 					new ItemStack(Items.IRON_INGOT), new ItemStack(Items.DIAMOND_SHOVEL),
 					new ItemStack(Items.IRON_INGOT), new ItemStack(Items.IRON_INGOT), new ItemStack(Items.REDSTONE),
 					new ItemStack(Items.IRON_INGOT));
-			registerShapelessRecipe(new ItemStack(MegaQuarryAdditions.better_quarry),
-					new ItemStack(MegaQuarryAdditions.quarry), new ItemStack(Items.DIAMOND),
-					new ItemStack(Blocks.COBBLESTONE));
-			registerShapelessRecipe(new ItemStack(MegaQuarryAdditions.filtered_quarry),
-					new ItemStack(MegaQuarryAdditions.better_quarry), new ItemStack(Items.DIAMOND),
-					new ItemStack(Items.PAPER));
+			registerShapelessRecipe(e, new ItemStack(better_quarry), new ItemStack(quarry),
+					new ItemStack(Items.DIAMOND), new ItemStack(Blocks.COBBLESTONE));
+			registerShapelessRecipe(e, new ItemStack(filtered_quarry), new ItemStack(better_quarry),
+					new ItemStack(Items.DIAMOND), new ItemStack(Items.PAPER));
 		}
-	}
-
-	public static void registerItems(FMLPreInitializationEvent e) {
-
-	}
-
-	public static void registerShapedRecipe(ItemStack output, int w, int h, ItemStack... ingredients) {
-		GameRegistry.register(new ShapedRecipes("", w, h, getIngredientList(w * h, ingredients), output),
-				new ResourceLocation(MegaQuarryMod.MODID,
-						"recipe_" + output.getItem().getRegistryName().getResourcePath()));
-	}
-
-	public static void registerShapelessRecipe(ItemStack output, ItemStack... ingredients) {
-		GameRegistry.register(new ShapelessRecipes("", output, getIngredientList(ingredients.length, ingredients)),
-				new ResourceLocation(MegaQuarryMod.MODID,
-						"recipe_" + output.getItem().getRegistryName().getResourcePath()));
 	}
 
 }
