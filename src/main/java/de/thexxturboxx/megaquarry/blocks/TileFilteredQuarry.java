@@ -1,11 +1,16 @@
 package de.thexxturboxx.megaquarry.blocks;
 
-import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.base.Optional;
+
+import de.thexxturboxx.megaquarry.MegaQuarryMod;
+import de.thexxturboxx.megaquarry.packets.UpdateClientQuarryPacket;
+import de.thexxturboxx.megaquarry.proxy.CommonProxy;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,14 +18,32 @@ import net.minecraft.util.math.BlockPos;
 
 public class TileFilteredQuarry extends TileQuarry {
 
-	public static final List<Item> filtered = Arrays.asList(Item.getItemFromBlock(Blocks.COBBLESTONE),
-			Item.getItemFromBlock(Blocks.DIRT), Item.getItemFromBlock(Blocks.SAND),
-			Item.getItemFromBlock(Blocks.GRAVEL), Items.FLINT, Item.getItemFromBlock(Blocks.SANDSTONE),
-			Item.getItemFromBlock(Blocks.STONE));
+	private boolean isFiltered(Item i, int m) {
+		for (Pair<Item, Optional<Integer>> p : CommonProxy.filtered) {
+			if (p.getKey() == i) {
+				return !p.getValue().isPresent() || p.getValue().get() == m;
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public void quarryPart() {
-		if (!getWorld().isRemote && active && getPos() != null && yDig >= 0) {
+		boolean flag;
+		switch (redstoneControl) {
+		case 0:
+			flag = !world.isBlockPowered(pos);
+			break;
+		case 1:
+			flag = world.isBlockPowered(pos);
+			break;
+		case 2:
+			flag = true;
+			break;
+		default:
+			flag = false;
+		}
+		if (flag && !getWorld().isRemote && active && getPos() != null) {
 			int chunkX = getPos().getX() >> 4;
 			int chunkZ = getPos().getZ() >> 4;
 			if (yDig < 0) {
@@ -34,6 +57,15 @@ public class TileFilteredQuarry extends TileQuarry {
 				if (zDig >= 16) {
 					zDig = 0;
 					yDig--;
+					boolean flag1 = false;
+					if (yDig < 0) {
+						yDig = 0;
+						active = false;
+						flag1 = true;
+					}
+					MegaQuarryMod.PACKETWRAPPER.sendToAll(new UpdateClientQuarryPacket(yDig, redstoneControl, active,
+							getPos().getX(), getPos().getY(), getPos().getZ()));
+					if(flag1) return;
 				}
 				BlockPos block = new BlockPos(chunkX * 16 + xDig, yDig, chunkZ * 16 + zDig);
 				if (!block.equals(getPos()) && getWorld().getBlockState(block).getBlock()
@@ -49,7 +81,7 @@ public class TileFilteredQuarry extends TileQuarry {
 						}
 					}
 					for (ItemStack i1 : items) {
-						if (!filtered.contains(i1.getItem())) {
+						if (!isFiltered(i1.getItem(), i1.getMetadata())) {
 							ItemStack is = fillItemsToInv(i1, this);
 							if (is != null) {
 								if (getWorld().getTileEntity(getPos().up()) != null

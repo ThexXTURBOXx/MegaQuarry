@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "megaquarry:better_quarry"
+  },
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "megaquarry:quarry"
+    },
+    {
+      "item": "#DIABLOCK"
+    },
+    {
+      "item": "#EMBLOCK"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "megaquarry:hardmode"
+    }
+  ]
+}

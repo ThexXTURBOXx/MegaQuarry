@@ -1,0 +1,6 @@
+{
+    "conditions": {
+        "hardmode": "de.thexxturboxx.megaquarry.recipes.HardmodeCondition",
+        "not_hardmode": "de.thexxturboxx.megaquarry.recipes.NotHardmodeCondition"
+    }
+}

@@ -1,5 +1,8 @@
 package de.thexxturboxx.megaquarry.blocks;
 
+import de.thexxturboxx.megaquarry.MegaQuarryMod;
+import de.thexxturboxx.megaquarry.gui.MegaQuarryGuiHandler;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,6 +23,9 @@ public class Quarry extends MQBlockContainer {
 
 	public Quarry(String name) {
 		super(Material.IRON, name);
+		setHardness(5.0F);
+		setResistance(10.0F);
+		setSoundType(SoundType.METAL);
 	}
 
 	@Override
@@ -56,7 +62,8 @@ public class Quarry extends MQBlockContainer {
 		if (!worldIn.isRemote && worldIn.getTileEntity(pos) instanceof TileQuarry) {
 			ILockableContainer ilockablecontainer = (TileQuarry) worldIn.getTileEntity(pos);
 			if (ilockablecontainer != null) {
-				playerIn.displayGUIChest(ilockablecontainer);
+				playerIn.openGui(MegaQuarryMod.instance, MegaQuarryGuiHandler.QUARRY_GUI_ID, worldIn, pos.getX(),
+						pos.getY(), pos.getZ());
 			}
 		}
 		return true;

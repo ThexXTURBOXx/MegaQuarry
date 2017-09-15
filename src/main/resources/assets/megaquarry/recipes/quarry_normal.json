@@ -1,0 +1,30 @@
+{
+  "result": {
+    "item": "megaquarry:quarry"
+  },
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ipi",
+    "isi",
+    "iri"
+  ],
+  "key": {
+    "i": {
+      "item": "#IRONINGOT"
+    },
+    "p": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "s": {
+      "item": "minecraft:diamond_shovel"
+    },
+    "r": {
+      "item": "#REDSTONE"
+    }
+  },
+  "conditions": [
+    {
+      "type": "megaquarry:not_hardmode"
+    }
+  ]
+}

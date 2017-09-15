@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import de.thexxturboxx.megaquarry.MegaQuarryMod;
+import de.thexxturboxx.megaquarry.packets.UpdateClientQuarryPacket;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -21,39 +23,47 @@ import net.minecraft.util.math.BlockPos;
 public class TileQuarry extends TileEntityLockableLoot implements ITickable, IInventory {
 
 	public static ItemStack fillItemsToInv(ItemStack stack, IInventory inv) {
-		int i = 0;
-		int f = stack.getCount();
-		while (i < inv.getSizeInventory()) {
-			if (inv.getStackInSlot(i).isEmpty() || inv.getStackInSlot(i).isItemEqual(stack)) {
-				int c;
-				int u;
-				if (inv.getStackInSlot(i).isEmpty()) {
-					c = stack.getMaxStackSize();
-					u = 0;
-				} else {
-					c = inv.getStackInSlot(i).getMaxStackSize();
-					u = inv.getStackInSlot(i).getCount();
+		if (!stack.isEmpty()) {
+			int i = 0;
+			int f = stack.getCount();
+			while (i < inv.getSizeInventory()) {
+				if (inv.getStackInSlot(i).isEmpty() || inv.getStackInSlot(i).isItemEqual(stack)) {
+					int c;
+					int u;
+					if (inv.getStackInSlot(i).isEmpty()) {
+						c = stack.getMaxStackSize();
+						u = 0;
+					} else {
+						c = inv.getStackInSlot(i).getMaxStackSize();
+						u = inv.getStackInSlot(i).getCount();
+					}
+					int z = c - u;
+					if (f - z < 0) {
+						z = f;
+					}
+					ItemStack is = stack.copy();
+					is.setCount(u + z);
+					inv.setInventorySlotContents(i, is);
+					f = f - z;
+					if (f == 0) {
+						return null;
+					}
 				}
-				int z = c - u;
-				if (f - z < 0) {
-					z = f;
-				}
-				ItemStack is = stack.copy();
-				is.setCount(u + z);
-				inv.setInventorySlotContents(i, is);
-				f = f - z;
-				if (f == 0) {
-					return null;
-				}
+				i++;
 			}
-			i++;
+			ItemStack is = stack.copy();
+			is.setCount(f);
+			return is;
 		}
-		ItemStack is = stack.copy();
-		is.setCount(f);
-		return is;
+		return stack;
 	}
 
 	public int xDig, yDig, zDig;
+
+	/**
+	 * 0: On without Signal 1: On with Signal 2: Always on 3: Always off
+	 */
+	public int redstoneControl;
 
 	public boolean active;
 
@@ -80,6 +90,7 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 		xDig = 0;
 		yDig = -10;
 		zDig = 0;
+		redstoneControl = 0;
 		active = false;
 	}
 
@@ -133,6 +144,10 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 	@Override
 	public String getName() {
 		return "Mega Quarry";
+	}
+
+	public String getQuarryName() {
+		return world.getBlockState(getPos()).getBlock().getLocalizedName();
 	}
 
 	/**
@@ -208,7 +223,21 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 	}
 
 	public void quarryPart() {
-		if (!getWorld().isRemote && active && getPos() != null && yDig >= 0) {
+		boolean flag;
+		switch (redstoneControl) {
+		case 0:
+			flag = !world.isBlockPowered(pos);
+			break;
+		case 1:
+			flag = world.isBlockPowered(pos);
+			break;
+		case 2:
+			flag = true;
+			break;
+		default:
+			flag = false;
+		}
+		if (flag && !getWorld().isRemote && active && getPos() != null) {
 			int chunkX = getPos().getX() >> 4;
 			int chunkZ = getPos().getZ() >> 4;
 			if (yDig < 0) {
@@ -222,6 +251,15 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 				if (zDig >= 16) {
 					zDig = 0;
 					yDig--;
+					boolean flag1 = false;
+					if (yDig < 0) {
+						yDig = 0;
+						active = false;
+						flag1 = true;
+					}
+					MegaQuarryMod.PACKETWRAPPER.sendToAll(new UpdateClientQuarryPacket(yDig, redstoneControl, active,
+							getPos().getX(), getPos().getY(), getPos().getZ()));
+					if(flag1) return;
 				}
 				BlockPos block = new BlockPos(chunkX * 16 + xDig, yDig, chunkZ * 16 + zDig);
 				if (!block.equals(getPos()) && getWorld().getBlockState(block).getBlock()
@@ -245,6 +283,7 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 				}
 				xDig++;
 			}
+			world.scheduleBlockUpdate(pos, world.getBlockState(pos).getBlock(), 0, 0);
 		}
 	}
 
@@ -284,6 +323,11 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 			active = compound.getBoolean("active");
 		} else {
 			active = true;
+		}
+		if (compound.hasKey("redstoneCtrl")) {
+			redstoneControl = compound.getInteger("redstoneCtrl");
+		} else {
+			redstoneControl = 0;
 		}
 	}
 
@@ -365,6 +409,7 @@ public class TileQuarry extends TileEntityLockableLoot implements ITickable, IIn
 		compound.setInteger("yDig", yDig);
 		compound.setInteger("zDig", zDig);
 		compound.setBoolean("active", active);
+		compound.setInteger("redstoneCtrl", redstoneControl);
 		return compound;
 	}
 

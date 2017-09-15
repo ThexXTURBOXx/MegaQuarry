@@ -2,6 +2,8 @@ package de.thexxturboxx.megaquarry.blocks;
 
 import java.util.List;
 
+import de.thexxturboxx.megaquarry.MegaQuarryMod;
+import de.thexxturboxx.megaquarry.packets.UpdateClientQuarryPacket;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -12,7 +14,21 @@ public class TileBetterQuarry extends TileQuarry {
 
 	@Override
 	public void quarryPart() {
-		if (!getWorld().isRemote && active && getPos() != null && yDig >= 0) {
+		boolean flag;
+		switch (redstoneControl) {
+		case 0:
+			flag = !world.isBlockPowered(pos);
+			break;
+		case 1:
+			flag = world.isBlockPowered(pos);
+			break;
+		case 2:
+			flag = true;
+			break;
+		default:
+			flag = false;
+		}
+		if (flag && !getWorld().isRemote && active && getPos() != null) {
 			int chunkX = getPos().getX() >> 4;
 			int chunkZ = getPos().getZ() >> 4;
 			if (yDig < 0) {
@@ -26,6 +42,15 @@ public class TileBetterQuarry extends TileQuarry {
 				if (zDig >= 16) {
 					zDig = 0;
 					yDig--;
+					boolean flag1 = false;
+					if (yDig < 0) {
+						yDig = 0;
+						active = false;
+						flag1 = true;
+					}
+					MegaQuarryMod.PACKETWRAPPER.sendToAll(new UpdateClientQuarryPacket(yDig, redstoneControl, active,
+							getPos().getX(), getPos().getY(), getPos().getZ()));
+					if(flag1) return;
 				}
 				BlockPos block = new BlockPos(chunkX * 16 + xDig, yDig, chunkZ * 16 + zDig);
 				if (!block.equals(getPos()) && getWorld().getBlockState(block).getBlock()

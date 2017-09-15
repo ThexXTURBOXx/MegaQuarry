@@ -1,0 +1,74 @@
+[
+  {
+    "name": "DIABLOCK",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "blockDiamond"
+      }
+    ]
+  },
+  {
+    "name": "EMBLOCK",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "blockEmerald"
+      }
+    ]
+  },
+  {
+    "name": "DIAMOND",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "gemDiamond"
+      }
+    ]
+  },
+  {
+    "name": "COBBLESTONE",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "cobblestone"
+      }
+    ]
+  },
+  {
+    "name": "PAPER",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "paper"
+      }
+    ]
+  },
+  {
+    "name": "QUARTZBLOCK",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "blockQuartz"
+      }
+    ]
+  },
+  {
+    "name": "IRONINGOT",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "ingotIron"
+      }
+    ]
+  },
+  {
+    "name": "REDSTONE",
+    "ingredient": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "dustRedstone"
+      }
+    ]
+  }
+]

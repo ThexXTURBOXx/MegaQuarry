@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "megaquarry:filtered_quarry"
+  },
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "megaquarry:better_quarry"
+    },
+    {
+      "item": "#DIAMOND"
+    },
+    {
+      "item": "#PAPER"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "megaquarry:not_hardmode"
+    }
+  ]
+}

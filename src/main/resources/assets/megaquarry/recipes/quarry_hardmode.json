@@ -1,0 +1,27 @@
+{
+  "result": {
+    "item": "megaquarry:quarry"
+  },
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "qpq",
+    "pep",
+    "qpq"
+  ],
+  "key": {
+    "q": {
+      "item": "#QUARTZBLOCK"
+    },
+    "p": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "e": {
+      "item": "#EMBLOCK"
+    }
+  },
+  "conditions": [
+    {
+      "type": "megaquarry:hardmode"
+    }
+  ]
+}
